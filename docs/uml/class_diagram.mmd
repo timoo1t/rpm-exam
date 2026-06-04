@@ -1,0 +1,63 @@
+classDiagram
+    direction TB
+
+    class Book {
+        <<dataclass frozen>>
+        +str isbn
+        +str title
+        +str author
+        +int year
+        +bool available
+        +to_dict() dict
+        +from_dict(data) Book
+    }
+
+    class OperationResult {
+        <<dataclass>>
+        +bool success
+        +str message
+        +Optional~dict~ data
+    }
+
+    class LibraryService {
+        -Dict~str, Book~ _books
+        +count() int
+        +add_book(isbn, title, author, year) OperationResult
+        +find_by_isbn(isbn) Optional~Book~
+        +search(query) List~Book~
+        +borrow(isbn) OperationResult
+        +return_book(isbn) OperationResult
+        +list_all() List~Book~
+        +load_bulk(books) int
+    }
+
+    class validators {
+        <<module>>
+        +validate_isbn(isbn) Tuple~bool, str~
+        +validate_title(title) Tuple~bool, str~
+        +validate_author(author) Tuple~bool, str~
+        +validate_year(year) Tuple~bool, str~
+    }
+
+    class cli {
+        <<module>>
+        +HELP_TEXT str
+        +format_book_line(book) str
+        +run_interactive(service) int
+        +run_batch_commands(service, commands) List~str~
+        -_parse_add_command(args) tuple
+    }
+
+    class main {
+        <<entry point>>
+        +main(argv) int
+        +run_demo() int
+    }
+
+    LibraryService "1" *-- "0..*" Book : хранит
+    LibraryService ..> OperationResult : возвращает
+    LibraryService ..> validators : использует
+    cli ..> LibraryService : вызывает
+    cli ..> Book : отображает
+    main ..> cli : run_interactive
+    main ..> LibraryService : run_demo

@@ -1,0 +1,35 @@
+flowchart TB
+    subgraph ROOT["Корень проекта (main.py)"]
+        MAIN["main.py<br/>argparse, run_demo"]
+    end
+
+    subgraph APP["src/library_catalog/"]
+        CLI["cli.py<br/>Интерфейс CLI"]
+        SVC["service.py<br/>Бизнес-логика"]
+        MOD["models.py<br/>Book, OperationResult"]
+        VAL["validators.py<br/>Валидация ввода"]
+    end
+
+    subgraph TESTS["tests/"]
+        VER["verification/<br/>ТЗ"]
+        VALT["validation/<br/>Корректность данных"]
+        USR["usability/<br/>CLI"]
+        PERF["performance/<br/>benchmark.py"]
+        RUN["run_all_tests.py"]
+    end
+
+    MAIN --> CLI
+    MAIN --> SVC
+    CLI --> SVC
+    SVC --> MOD
+    SVC --> VAL
+
+    RUN --> VER
+    RUN --> VALT
+    RUN --> USR
+    RUN --> PERF
+    VER --> SVC
+    VER --> MAIN
+    VALT --> VAL
+    USR --> CLI
+    PERF --> SVC

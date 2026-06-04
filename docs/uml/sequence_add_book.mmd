@@ -1,0 +1,30 @@
+sequenceDiagram
+    autonumber
+    actor User as Пользователь
+    participant CLI as cli.run_interactive
+    participant SVC as LibraryService
+    participant VAL as validators
+    participant MOD as Book
+
+    User->>CLI: add 9785012345678 2020 Война и мир :: Лев Толстой
+    CLI->>CLI: _parse_add_command()
+    CLI->>SVC: add_book(isbn, title, author, year)
+
+    SVC->>VAL: validate_isbn(isbn)
+    VAL-->>SVC: (True, cleaned_isbn)
+    SVC->>VAL: validate_title(title)
+    VAL-->>SVC: (True, title)
+    SVC->>VAL: validate_author(author)
+    VAL-->>SVC: (True, author)
+    SVC->>VAL: validate_year(year)
+    VAL-->>SVC: (True, year_str)
+
+    alt ISBN уже в каталоге
+        SVC-->>CLI: OperationResult(success=False)
+        CLI-->>User: Книга с таким ISBN уже есть
+    else ISBN свободен
+        SVC->>MOD: Book(isbn, title, author, year)
+        SVC->>SVC: _books[isbn] = book
+        SVC-->>CLI: OperationResult(success=True, data)
+        CLI-->>User: Книга добавлена
+    end
